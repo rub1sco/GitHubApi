@@ -13,9 +13,7 @@
   ],
   "author": "Tom Lucero",
   "license": "ISC",
-  "dependencies": {
-    "express": "^4.18.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@tsconfig/node16": "^1.0.3",
     "@types/node": "^18.8.2",
