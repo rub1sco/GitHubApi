@@ -1,13 +1,12 @@
 import { IncomingMessage, ServerResponse } from "http";
+import { ErrorResponse } from "../api/types";
+import { updateHeadersAndSendResponseData } from "./route_utils";
 
 export function rootGetRequest(req: IncomingMessage, res: ServerResponse): void {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json')
-    res.end(JSON.stringify({}));
+    updateHeadersAndSendResponseData(200, {}, res);
 }
 
 export function invalidRequest(req: IncomingMessage, res: ServerResponse): void {
-    res.statusCode = 404;
-    res.setHeader('Content-Type', 'application/json')
-    res.end(JSON.stringify({ error: 'endpoint not yet supported.' }))
+    const errorResponse: ErrorResponse = { error: 'endpoint not yet supported.' };
+    updateHeadersAndSendResponseData(404, errorResponse, res)
 }
