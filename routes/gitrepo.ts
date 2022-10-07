@@ -1,4 +1,5 @@
-import { IncomingMessage, ServerResponse } from "http";
+import { IncomingMessage, ServerResponse, RequestOptions } from "http";
+import { request } from 'https'
 import { GithubRepoResponse } from "../api/types";
 import { updateHeadersAndSendResponseData } from "./route_utils";
 
@@ -8,7 +9,7 @@ import { updateHeadersAndSendResponseData } from "./route_utils";
  * @param res <ServerResponse> response server will send to client
  */
 export function gitRepoPostRequest(req: IncomingMessage, res: ServerResponse): void {
-    console.log(req)
+    // console.log(req)
     const testResponse: GithubRepoResponse = {
         id: 1,
         number: 100,
@@ -25,7 +26,10 @@ export function gitRepoPostRequest(req: IncomingMessage, res: ServerResponse): v
  * @param res 
  */
 export function gitRepoGetRequest(req: IncomingMessage, res: ServerResponse): void {
-    console.log(req)
+    // console.log(req)
+    getGithubResponse('https://api.github.com/repos/rub1sco/NodeCourseProjects').then((response: GithubRepoResponse) => {
+        console.log('github response', response);
+    });
     const testResponse: GithubRepoResponse = {
         id: 1,
         number: 100,
@@ -44,4 +48,50 @@ export function gitRepoGetRequest(req: IncomingMessage, res: ServerResponse): vo
 function sanitizeUrl(url: string): string {
     
     return '';
+}
+
+/**
+ * asynchronous function to get response from Github api
+ * 
+ * @param url sanitized repo url
+ * @returns Github response object
+ */
+function getGithubResponse(url: string): Promise<GithubRepoResponse> {
+    // https://github.com/rub1sco/GitHubApi
+
+    // must contain a valid repo
+    sanitizeUrl(url);
+
+    const githubPromise: Promise<GithubRepoResponse> = new Promise((reject, resolve) => {
+        const requestParams: RequestOptions = {
+            hostname: 'api.github.com',
+            path: '/repos/rub1sco/GitHubApi',
+            method: 'GET',
+            headers: {
+                "User-Agent": 'rub1sco-GitHubApi',
+                "Accept": "application/vnd.github+json",
+                "Authorization": `Bearer ${process.env.GITHUB_AUTH}`
+            }
+        }
+
+        let responseBody = ''
+        const req = request(requestParams, (res: IncomingMessage) => {
+            res.setEncoding('utf-8')
+            res.on('data', (chunk: any) => {
+                responseBody += chunk;
+            });
+            res.on('end', () => {
+                console.log('end of stream. data received:', responseBody);
+
+            });
+            res.on('error', (error: Error) => {
+                console.error('an error occured receving data from Github')
+            });
+        });
+
+        req.on('error', (error: Error) => console.error('An error occured with the request.'))
+        req.end();
+    })
+
+    return githubPromise;
 }
