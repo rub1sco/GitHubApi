@@ -4,6 +4,7 @@ export interface GithubRepoResponse {
     title: string;
     author: string;
     commit_count: number;
+    commits_url?: string;
 }
 
 export interface ErrorResponse {
