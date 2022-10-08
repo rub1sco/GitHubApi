@@ -1,6 +1,5 @@
 import { IncomingMessage, ServerResponse, RequestOptions } from "http";
-import { get, request } from 'https'
-import { url } from "inspector";
+import { request } from 'https'
 import { GithubRepoResponse } from "../api/types";
 import { updateHeadersAndSendResponseData } from "./route_utils";
 
@@ -70,7 +69,7 @@ function extractPathFromUrl(url: string): string | undefined {
  * @param url sanitized repo url
  * @returns Github response object
  */
-async function getGithubResponse(url: string): Promise<any> {
+function getGithubResponse(url: string): Promise<any> {
     const githubPromise: Promise<any> = new Promise((resolve, reject) => {
         const repoPath = extractPathFromUrl(url);
         if(!repoPath) {
