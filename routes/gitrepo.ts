@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse, RequestOptions } from "http";
 import { request } from 'https'
-import { GithubRepoResponse } from "../api/types";
+import { GithubRepoResponse, PostBody } from "../api/types";
 import { updateHeadersAndSendResponseData } from "./route_utils";
 
 /**
@@ -9,15 +9,37 @@ import { updateHeadersAndSendResponseData } from "./route_utils";
  * @param res <ServerResponse> response server will send to client
  */
 export function gitRepoPostRequest(req: IncomingMessage, res: ServerResponse): void {
-    console.log(req)
-    const testResponse: GithubRepoResponse = {
-        id: 1,
-        number: 100,
-        title: 'test title',
-        author: 'joe cool',
-        commit_count: 1
-    };
-    updateHeadersAndSendResponseData(200, testResponse, res);
+    let body: string  = ''
+    req.on('readable', () => {
+        const response = req.read()
+        if(response !== null){
+            body += response;
+        }
+    });
+    req.on('end',() => {
+        const gitHubUrlFromUser = JSON.parse(body);
+        getGithubResponse(gitHubUrlFromUser.url).then((response: Array<any>) => {
+            if(response.length){
+                const openPullRequestList: Array<GithubRepoResponse> = []
+                response.forEach(openPrObject => {
+                    openPullRequestList.push({
+                        id: openPrObject.id,
+                        number: openPrObject.number,
+                        title: openPrObject.title,
+                        author: openPrObject.user.login,
+                        commit_count: 0,
+                        commits_url: openPrObject.url
+                    });
+                })
+                return getNumberOfCommits(openPullRequestList, res)
+            } 
+            return updateHeadersAndSendResponseData(400, response, res);
+        }).then((openPullRequestList: Array<GithubRepoResponse>) => updateHeadersAndSendResponseData(200, openPullRequestList, res)).catch((reason: Error) => {
+            console.error(reason);
+            updateHeadersAndSendResponseData(400, {error: reason.message}, res);
+        });
+        
+    })
 }
 
 /**
@@ -28,17 +50,20 @@ export function gitRepoPostRequest(req: IncomingMessage, res: ServerResponse): v
 export function gitRepoGetRequest(req: IncomingMessage, res: ServerResponse): void {
     getGithubResponse('https://github.com/nodejs/docker-node').then((response: Array<any>) => {
         const openPullRequestList: Array<GithubRepoResponse> = []
-        response.forEach(openPrObject => {
-            openPullRequestList.push({
-                id: openPrObject.id,
-                number: openPrObject.number,
-                title: openPrObject.title,
-                author: openPrObject.user.login,
-                commit_count: 0,
-                commits_url: openPrObject.url
-            });
-        })
-        return getNumberOfCommits(openPullRequestList, res)
+        if(response.length) {
+            response.forEach(openPrObject => {
+                openPullRequestList.push({
+                    id: openPrObject.id,
+                    number: openPrObject.number,
+                    title: openPrObject.title,
+                    author: openPrObject.user.login,
+                    commit_count: 0,
+                    commits_url: openPrObject.url
+                });
+            })
+            return getNumberOfCommits(openPullRequestList, res)
+        }
+        // return response;
     }).then((openPullRequestList: Array<GithubRepoResponse>) => updateHeadersAndSendResponseData(200, openPullRequestList, res)).catch((reason: Error) => {
         console.error(reason)
     });
@@ -46,25 +71,38 @@ export function gitRepoGetRequest(req: IncomingMessage, res: ServerResponse): vo
 }
 
 /**
- * Function to sanitize any malformed url string entered by the user.
+ * Function to extract the path from the user provided github URL.
+ * Requirements:
+ * 1. url MUST contain 'github.com' or else it will be invalid.
+ * 2. will remove ending '/' to be consistent between multiple calls.
+ * 3. if user has accidentally entered a space in path, will automatically remove 
+ * 4. if path is malformed, will attempt to correct path.
+ * 
  * @param url user entered url
- * @returns valid url string
+ * @returns valid Path
  */
 function extractPathFromUrl(url: string): string | undefined {
-    
-    // check to make sure it is a valid github url
     if(url.includes('github.com')){
-        // if valid split url into components
         const urlComponents = url.split('github.com/')
-        // if not valid, return empty to
-        return urlComponents[1]
+
+        if(urlComponents[1].endsWith('/')) {
+            urlComponents[1] = urlComponents[1].substring(0, urlComponents[1].length - 1);
+        }
+        if(urlComponents[1].includes(' ')) {
+            urlComponents[1] = urlComponents[1].replace(' ', '');
+        }
+        if(urlComponents[1].includes('//')){
+            urlComponents[1] = urlComponents[1].replace('//', '/');
+        }
+
+        return urlComponents[1].includes('repos/') ? urlComponents[1] : `repos/${urlComponents[1]}`
     }
 
     return undefined;
 }
 
 /**
- * asynchronous function to get response from Github api
+ * asynchronous function to get response from Github api.
  * 
  * @param url sanitized repo url
  * @returns Github response object
@@ -72,12 +110,13 @@ function extractPathFromUrl(url: string): string | undefined {
 function getGithubResponse(url: string): Promise<any> {
     const githubPromise: Promise<any> = new Promise((resolve, reject) => {
         const repoPath = extractPathFromUrl(url);
+        
         if(!repoPath) {
             reject(new Error(`Invalid Github url- ${url}`));
         } else {
             const requestParams: RequestOptions = {
                 hostname: 'api.github.com',
-                path: `/repos/${repoPath}/pulls`,
+                path: `/${repoPath}/pulls`,
                 method: 'GET',
                 headers: {
                     "User-Agent": 'rub1sco-GitHubApi',
@@ -85,7 +124,6 @@ function getGithubResponse(url: string): Promise<any> {
                     "Authorization": `Bearer ${process.env.GITHUB_AUTH}`
                 }
             }
-
             let responseBody = ''
             const req = request(requestParams, (res: IncomingMessage) => {
                 res.setEncoding('utf-8')
@@ -96,7 +134,7 @@ function getGithubResponse(url: string): Promise<any> {
                     resolve(JSON.parse(responseBody))
                 });
                 res.on('error', (error: Error) => {
-                    console.error('an error occured receving data from Github')
+                    reject(new Error('an error occured getting a response from Github.'))
                 });
             });
 
@@ -109,6 +147,14 @@ function getGithubResponse(url: string): Promise<any> {
     return githubPromise;
 }
 
+/**
+ * retrieves the number of commits that were related to the PR. data contains the link to the current PR url and will fetch
+ * the request from github and promise will be pending in promises array. multiple promises will be returned with Promise.all()
+ * 
+ * @param data data array containing github repo information
+ * @param res Server response object to send back to client
+ * @returns All promises that are still pending
+ */
 function getNumberOfCommits(data: Array<GithubRepoResponse>, res: ServerResponse): Promise<any> {
     let promises: Array<Promise<any>> = []
     const reqOptions: RequestOptions = {
@@ -145,5 +191,4 @@ function getNumberOfCommits(data: Array<GithubRepoResponse>, res: ServerResponse
     })
 
     return Promise.all((promises));
-
 }
