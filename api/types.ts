@@ -10,3 +10,7 @@ export interface GithubRepoResponse {
 export interface ErrorResponse {
     error: string;
 }
+
+export interface PostBody {
+    url: string
+}
