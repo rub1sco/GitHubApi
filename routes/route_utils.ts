@@ -10,6 +10,8 @@ import { ServerResponse } from "http";
  */
 export function updateHeadersAndSendResponseData(status: number, data: any, res: ServerResponse): void {
     res.statusCode = status;
-    res.setHeader('Content-Type', 'application/json');
+    if(res.getHeaderNames().length === 0) {
+        res.setHeader('Content-Type', 'application/json');
+    }
     res.end(JSON.stringify(data));
 } 
