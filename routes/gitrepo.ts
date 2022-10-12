@@ -19,7 +19,7 @@ export function gitRepoPostRequest(req: IncomingMessage, res: ServerResponse): v
     req.on('end',() => {
         const gitHubUrlFromUser = JSON.parse(body);
         getGithubResponse(gitHubUrlFromUser.url).then((response: Array<any>) => {
-            if(response.length){
+            if(response && response.length){
                 const openPullRequestList: Array<GithubRepoResponse> = []
                 response.forEach(openPrObject => {
                     openPullRequestList.push({
@@ -40,6 +40,8 @@ export function gitRepoPostRequest(req: IncomingMessage, res: ServerResponse): v
         });
         
     })
+
+    req.on('error', (error) => console.error(new Error('an error occured reading req body.')))
 }
 
 /**
@@ -48,7 +50,7 @@ export function gitRepoPostRequest(req: IncomingMessage, res: ServerResponse): v
  * @param res 
  */
 export function gitRepoGetRequest(req: IncomingMessage, res: ServerResponse): void {
-    getGithubResponse('https://github.com/nodejs/docker-node').then((response: Array<any>) => {
+    getGithubResponse('https://github.com/').then((response: Array<any>) => {
         const openPullRequestList: Array<GithubRepoResponse> = []
         if(response.length) {
             response.forEach(openPrObject => {
@@ -81,7 +83,7 @@ export function gitRepoGetRequest(req: IncomingMessage, res: ServerResponse): vo
  * @param url user entered url
  * @returns valid Path
  */
-function extractPathFromUrl(url: string): string | undefined {
+export function extractPathFromUrl(url: string): string | undefined {
     if(url.includes('github.com')){
         const urlComponents = url.split('github.com/')
 
@@ -107,10 +109,9 @@ function extractPathFromUrl(url: string): string | undefined {
  * @param url sanitized repo url
  * @returns Github response object
  */
-function getGithubResponse(url: string): Promise<any> {
+export function getGithubResponse(url: string): Promise<any> {
     const githubPromise: Promise<any> = new Promise((resolve, reject) => {
         const repoPath = extractPathFromUrl(url);
-        
         if(!repoPath) {
             reject(new Error(`Invalid Github url- ${url}`));
         } else {
@@ -155,7 +156,7 @@ function getGithubResponse(url: string): Promise<any> {
  * @param res Server response object to send back to client
  * @returns All promises that are still pending
  */
-function getNumberOfCommits(data: Array<GithubRepoResponse>, res: ServerResponse): Promise<any> {
+export function getNumberOfCommits(data: Array<GithubRepoResponse>, res: ServerResponse): Promise<any> {
     let promises: Array<Promise<any>> = []
     const reqOptions: RequestOptions = {
         hostname: 'api.github.com',

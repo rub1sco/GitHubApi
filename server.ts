@@ -12,8 +12,6 @@ const host: string = '0.0.0.0'
 const server: Server = createServer((req: IncomingMessage, res: ServerResponse) => {
     if(req.url === '/' && req.method === 'GET') {
         rootGetRequest(req, res);
-    } else if (req.url === '/git' && req.method === 'GET') {
-        gitRepoGetRequest(req, res);
     } else if (req.url === '/git' && req.method === 'POST') {
         gitRepoPostRequest(req, res);
     }
