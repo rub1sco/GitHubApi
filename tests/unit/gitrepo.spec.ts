@@ -3,8 +3,14 @@ import {
     extractPathFromUrl, 
     getGithubResponse, 
     getNumberOfCommits } from "../../routes/gitrepo";
-import { describe, it, expect, jest, test, beforeEach, afterEach } from '@jest/globals'
-import { Request, Response, MockResponseOptions, MockResponseData, MockRequestOptions} from 'mock-http';
+import { 
+    describe, 
+    it, 
+    expect, 
+    jest } from '@jest/globals'
+import { 
+    Request,
+    Response } from 'mock-http';
 import * as moduleApi from '../../routes/route_utils'
 import * as gitApi from '../../routes/gitrepo'
 import { GithubRepoResponse } from "../../api/types";
