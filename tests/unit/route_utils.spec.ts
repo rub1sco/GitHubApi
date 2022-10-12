@@ -26,7 +26,6 @@ describe('route utils tests', () => {
         expect(res.statusCode).toBeFalsy()
         updateHeadersAndSendResponseData(400, {}, res)
         expect(res.statusCode).toBe(400);
-        console.log(res.getHeaders()['content-type'])
         expect(res.getHeaders()['content-type']).toBe('application/json');
     });
 })
