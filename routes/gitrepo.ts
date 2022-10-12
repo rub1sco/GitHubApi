@@ -34,8 +34,8 @@ export function gitRepoPostRequest(req: IncomingMessage, res: ServerResponse): v
                 return getNumberOfCommits(openPullRequestList, res)
             } 
             return updateHeadersAndSendResponseData(400, response, res);
-        }).then((openPullRequestList: Array<GithubRepoResponse>) => updateHeadersAndSendResponseData(200, openPullRequestList, res)).catch((reason: Error) => {
-            console.error(reason);
+        }).then((openPullRequestList: Array<GithubRepoResponse>) => updateHeadersAndSendResponseData(200, openPullRequestList, res))
+        .catch((reason: Error) => {
             updateHeadersAndSendResponseData(400, {error: reason.message}, res);
         });
         
