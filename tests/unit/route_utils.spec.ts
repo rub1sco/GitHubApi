@@ -1,19 +1,18 @@
 import {
   describe,
   it,
-  expect,
-  jest
+  expect
 } from '@jest/globals'
 import {
   MockRequestOptions,
-  Request,
   Response
 } from 'mock-http'
 import { updateHeadersAndSendResponseData } from '../../routes/route_utils'
 
 describe('route utils tests', () => {
   it('should update headers and send 200 response with data', () => {
-    const res = new Response({} as MockRequestOptions)
+    const reqOptions: MockRequestOptions = {}
+    const res = new Response(reqOptions)
     expect(res.statusCode).toBeFalsy()
     updateHeadersAndSendResponseData(200, {}, res)
     expect(res.statusCode).toBe(200)
@@ -21,7 +20,8 @@ describe('route utils tests', () => {
   })
 
   it('should update headers and send 400 response with error data', () => {
-    const res = new Response({} as MockRequestOptions)
+    const reqOptions: MockRequestOptions = {}
+    const res = new Response(reqOptions)
     expect(res.statusCode).toBeFalsy()
     updateHeadersAndSendResponseData(400, {}, res)
     expect(res.statusCode).toBe(400)

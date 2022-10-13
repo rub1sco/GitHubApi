@@ -1,23 +1,22 @@
 import {
   describe,
   it,
-  expect,
-  jest
+  expect
 } from '@jest/globals'
-import { rejects } from 'assert'
-
 import { get, IncomingMessage, request } from 'http'
 import { get as secureGet, RequestOptions } from 'https'
-import path from 'path'
+import { config } from 'dotenv'
 
-require('dotenv').config()
+// configure env vars
+config()
 
 describe('server.ts connectivity tests', () => {
   it('server should be up and running and ready for client connections', async () => {
     await expect(new Promise((resolve, reject) => {
-      get('http://127.0.0.1:8080/', async (res) => {
+      get('http://127.0.0.1:8080/', (res) => {
         resolve(res.statusCode)
       }).on('error', (error) => {
+        reject((error.message))
       })
     })).resolves.toBe(200)
   })
@@ -25,14 +24,14 @@ describe('server.ts connectivity tests', () => {
   it('server online: user navigated to /git and posted a request for nodejs/node', async () => {
     await expect(new Promise((resolve, reject) => {
       let responseObject = ''
-      const req = request({
+      const reqOptions: RequestOptions = {
         host: '127.0.0.1',
         port: 8080,
         path: '/git',
         method: 'POST'
-
-      } as RequestOptions, (res: IncomingMessage) => {
-        res.on('data', (chunk) => {
+      }
+      const req = request(reqOptions, (res: IncomingMessage) => {
+        res.on('data', (chunk: string) => {
           responseObject += chunk
         })
 
@@ -40,7 +39,7 @@ describe('server.ts connectivity tests', () => {
           reject(error.message)
         })
 
-        res.on('end', async () => {
+        res.on('end', () => {
           resolve(JSON.parse(responseObject).length)
         })
       })
@@ -55,14 +54,15 @@ describe('server.ts connectivity tests', () => {
   it('server online: user navigated to /git and posted an invalid request: wrong host', async () => {
     await expect(new Promise((resolve, reject) => {
       let responseObject = ''
-      const req = request({
+      const reqOptions: RequestOptions = {
         host: '127.0.0.1',
         port: 8080,
         path: '/git',
         method: 'POST'
 
-      } as RequestOptions, (res: IncomingMessage) => {
-        res.on('data', (chunk) => {
+      }
+      const req = request(reqOptions, (res: IncomingMessage) => {
+        res.on('data', (chunk: string) => {
           responseObject += chunk
         })
 
@@ -70,7 +70,7 @@ describe('server.ts connectivity tests', () => {
           reject(error.message)
         })
 
-        res.on('end', async () => {
+        res.on('end', () => {
           resolve(JSON.parse(responseObject).error)
         })
       })
@@ -85,14 +85,15 @@ describe('server.ts connectivity tests', () => {
   it('server online: user navigated to /git and posted an invalid request: space in address', async () => {
     await expect(new Promise((resolve, reject) => {
       let responseObject = ''
-      const req = request({
+      const reqOptions: RequestOptions = {
         host: '127.0.0.1',
         port: 8080,
         path: '/git',
         method: 'POST'
 
-      } as RequestOptions, (res: IncomingMessage) => {
-        res.on('data', (chunk) => {
+      }
+      const req = request(reqOptions, (res: IncomingMessage) => {
+        res.on('data', (chunk: string) => {
           responseObject += chunk
         })
 
@@ -100,7 +101,7 @@ describe('server.ts connectivity tests', () => {
           reject(error.message)
         })
 
-        res.on('end', async () => {
+        res.on('end', () => {
           resolve(JSON.parse(responseObject).length)
         })
       })
@@ -115,14 +116,15 @@ describe('server.ts connectivity tests', () => {
   it('server online: user navigated to /git and posted an invalid request: // in address', async () => {
     await expect(new Promise((resolve, reject) => {
       let responseObject = ''
-      const req = request({
+      const reqOptions: RequestOptions = {
         host: '127.0.0.1',
         port: 8080,
         path: '/git',
         method: 'POST'
 
-      } as RequestOptions, (res: IncomingMessage) => {
-        res.on('data', (chunk) => {
+      }
+      const req = request(reqOptions, (res: IncomingMessage) => {
+        res.on('data', (chunk: string) => {
           responseObject += chunk
         })
 
@@ -130,7 +132,7 @@ describe('server.ts connectivity tests', () => {
           reject(error.message)
         })
 
-        res.on('end', async () => {
+        res.on('end', () => {
           resolve(JSON.parse(responseObject).message)
         })
       })
@@ -163,7 +165,7 @@ describe('github api connectivity tests', () => {
         headers: {
           'User-Agent': 'rub1sco-GitHubApi',
           Accept: 'application/vnd.github+json',
-          Authorization: `Bearer ${process.env.GITHUB_AUTH}`
+          Authorization: `Bearer ${process.env.GITHUB_AUTH ?? ''}`
         }
       }
       secureGet(reqOptions, (res) => {
@@ -183,7 +185,7 @@ describe('github api connectivity tests', () => {
         headers: {
           'User-Agent': 'rub1sco-GitHubApi',
           Accept: 'application/vnd.github+json',
-          Authorization: `Bearer ${process.env.GITHUB_AUTH}`
+          Authorization: `Bearer ${process.env.GITHUB_AUTH ?? ''}`
         }
       }
       secureGet(reqOptions, (res) => {
