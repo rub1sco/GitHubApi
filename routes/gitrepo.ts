@@ -50,7 +50,7 @@ export function gitRepoPostRequest (req: IncomingMessage, res: ServerResponse): 
  * 3. if user has accidentally entered a space in path, will automatically remove
  * 4. if path is malformed, will attempt to correct path.
  *
- * @param url user entered url
+ * @param url <string> user entered url
  * @returns valid Path
  */
 export function extractPathFromUrl (url: string): string | undefined {
@@ -76,8 +76,8 @@ export function extractPathFromUrl (url: string): string | undefined {
 /**
  * asynchronous function to get response from Github api.
  *
- * @param url sanitized repo url
- * @returns Github response object
+ * @param url <string> sanitized repo url
+ * @returns <Promise> Github response object
  */
 export async function getGithubResponse (url: string): Promise<any> {
   const githubPromise: Promise<any> = new Promise((resolve, reject) => {
@@ -121,9 +121,9 @@ export async function getGithubResponse (url: string): Promise<any> {
  * retrieves the number of commits that were related to the PR. data contains the link to the current PR url and will fetch
  * the request from github and promise will be pending in promises array. multiple promises will be returned with Promise.all()
  *
- * @param data data array containing github repo information
- * @param res Server response object to send back to client
- * @returns All promises that are still pending
+ * @param data <List<GitHubResponse>> data array containing github repo information
+ * @param res <ServerResponse> Server response object to send back to client
+ * @returns <Promise> All promises that are still pending
  */
 export async function getNumberOfCommits (data: GithubRepoResponse[], res: ServerResponse): Promise<any> {
   const promises: Array<Promise<any>> = []
