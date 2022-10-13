@@ -5,7 +5,7 @@ import {
   ServerResponse
 } from 'http'
 import { rootGetRequest, invalidRequest } from './routes/misc_routes'
-import { gitRepoPostRequest, gitRepoGetRequest } from './routes/gitrepo'
+import { gitRepoPostRequest } from './routes/gitrepo'
 import internal from 'stream'
 const port: number = 8080
 const host: string = '0.0.0.0'
