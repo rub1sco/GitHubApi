@@ -147,7 +147,7 @@ describe('server.ts connectivity tests', () => {
             get('http://127.0.0.1:8080/', (res) => {
                 resolve(res);
             }).on('error', (error) => {
-               reject(error.message); 
+                reject(error.message.includes('ECONNREFUSED')); 
             });
         })).rejects.toBeTruthy();
     })
