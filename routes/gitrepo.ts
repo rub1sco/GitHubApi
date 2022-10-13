@@ -43,33 +43,6 @@ export function gitRepoPostRequest (req: IncomingMessage, res: ServerResponse): 
 }
 
 /**
- * Get request to Github API without any user input
- * @param req
- * @param res
- */
-export function gitRepoGetRequest (req: IncomingMessage, res: ServerResponse): void {
-  getGithubResponse('https://github.com/').then((response: any[]) => {
-    const openPullRequestList: GithubRepoResponse[] = []
-    if (response.length > 0) {
-      response.forEach(openPrObject => {
-        openPullRequestList.push({
-          id: openPrObject.id,
-          number: openPrObject.number,
-          title: openPrObject.title,
-          author: openPrObject.user.login,
-          commit_count: 0,
-          commits_url: openPrObject.url
-        })
-      })
-      return getNumberOfCommits(openPullRequestList, res)
-    }
-    // return response;
-  }).then((openPullRequestList: GithubRepoResponse[]) => updateHeadersAndSendResponseData(200, openPullRequestList, res)).catch((reason: Error) => {
-    console.error(reason)
-  })
-}
-
-/**
  * Function to extract the path from the user provided github URL.
  * Requirements:
  * 1. url MUST contain 'github.com' or else it will be invalid.
@@ -109,7 +82,7 @@ export function extractPathFromUrl (url: string): string | undefined {
 export async function getGithubResponse (url: string): Promise<any> {
   const githubPromise: Promise<any> = new Promise((resolve, reject) => {
     const repoPath = extractPathFromUrl(url)
-    if (!repoPath) {
+    if (repoPath === undefined) {
       reject(new Error(`Invalid Github url- ${url}`))
     } else {
       const requestParams: RequestOptions = {
@@ -161,13 +134,13 @@ export async function getNumberOfCommits (data: GithubRepoResponse[], res: Serve
     headers: {
       'User-Agent': 'rub1sco-GitHubApi',
       Accept: 'application/vnd.github+json',
-      Authorization: `Bearer ${process.env.GITHUB_AUTH}`
+      Authorization: `Bearer ${process.env.GITHUB_AUTH ?? ''}`
     }
   }
 
   data.forEach((repo) => {
     const promise = new Promise((resolve, reject) => {
-      if (repo.commits_url) {
+      if (repo.commits_url !== undefined) {
         const repoPath = extractPathFromUrl(repo.commits_url) ?? ''
         reqOptions.path = `/${repoPath}`
       }

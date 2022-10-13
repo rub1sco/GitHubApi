@@ -45,7 +45,7 @@ describe('github api tests', () => {
       })
       const res: Response = new Response({})
 
-      const spy = jest.spyOn(res, 'end').mockImplementation((chunk) => new Response({ onEnd: () => 'complete' }))
+      const spy = jest.spyOn(req, 'on').mockImplementation((_event, _listener) => req)
       gitRepoPostRequest(req, res)
 
       await expect(spy).toHaveBeenCalled()
