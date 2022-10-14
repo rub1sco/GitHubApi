@@ -2,7 +2,10 @@
   "name": "githubrestproject",
   "version": "1.0.0",
   "description": "testing REST requests with github",
-  "main": "server.js",
+  "main": "dist/server.js",
+  "engines": {
+    "node": "16.x"
+  },
   "scripts": {
     "build": "tsc",
     "test": "jest",
