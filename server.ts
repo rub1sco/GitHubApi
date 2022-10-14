@@ -8,7 +8,6 @@ import { rootGetRequest, invalidRequest } from './routes/misc_routes'
 import { gitRepoPostRequest } from './routes/gitrepo'
 import internal from 'stream'
 const port: string = process.env.PORT ?? '8080'
-const host: string = '0.0.0.0'
 
 const server: Server = createServer((req: IncomingMessage, res: ServerResponse) => {
   if (req.url === '/' && req.method === 'GET') {

@@ -10,6 +10,7 @@
     "build": "tsc",
     "test": "jest",
     "start": "node server.js",
+    "start-docker": "ts-node server.ts",
     "start-dev": "ts-node-dev -r dotenv/config server.ts"
   },
   "keywords": [

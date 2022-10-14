@@ -1,6 +1,6 @@
 FROM node:16
 
-WORKDIR /usr/src/app
+WORKDIR /usr/src/app/dist
 COPY package*.json ./
 
 ARG github_auth
@@ -12,4 +12,4 @@ COPY . .
 EXPOSE 8080
 ENV GITHUB_AUTH=${github_auth}
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "start-docker"]
