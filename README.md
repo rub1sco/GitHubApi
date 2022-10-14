@@ -13,6 +13,20 @@ With node server running, clients can send POST requests to localhost:8080/git w
 a list of all open PRs with the ID, PR number, author, and number of commits. Currently a root request will respond to the client with {}.
 This was done to support future development or to support a landing page for user information.
 
+To run in a docker setup:
+1. run `docker build -t github-api --build-arg github_auth=<GITHUB_API_KEY> .`
+2. run `docker run -dp 8080:8080 github-api`
+3. container should now be started and running on localhost:8080
+
+to run a production build:
+1. run `npm run build` to compile typescript into javascript
+2. run `npm start`
+3. server should now be running on port 8080 (or whatever you define $PORT to be in env variables)
+
+To run in development:
+1. run `npm run start-dev` 
+2. server should now be running
+
 Ways to improve / additions:
 - Added support for Docker containers. As a microservice, this service can be connected to other microservices (ie. db container, front end container, etc) and hosted on cluster or AWS Lambda. Running in a cluster, we can scale with multiple instances of the container service if needed.
 
