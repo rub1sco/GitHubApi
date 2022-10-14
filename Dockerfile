@@ -6,7 +6,6 @@ COPY package*.json ./
 ARG github_auth
 
 RUN npm install .
-# RUN npm ci --only=production
 
 COPY . .
 EXPOSE 8080

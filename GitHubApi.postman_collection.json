@@ -1,0 +1,98 @@
+{
+	"info": {
+		"_postman_id": "13c8f591-8292-4e5c-9fb0-99eb4826b8ea",
+		"name": "GitHubApi",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "heroku POST request",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"url\": \"https://github.com/nodejs/node\"\n}"
+				},
+				"url": {
+					"raw": "https://obscure-stream-02043.herokuapp.com/git",
+					"protocol": "https",
+					"host": [
+						"obscure-stream-02043",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"git"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "dev environment POST request",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"url\": \"https://github.com/nodejs/node\"\n}"
+				},
+				"url": {
+					"raw": "localhost:8080/git",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"git"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "landing page GET request",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"url\": \"https://github.com/rub1sco/GitHubApi\"\n}"
+				},
+				"url": {
+					"raw": "localhost:8080/",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
