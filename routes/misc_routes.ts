@@ -10,7 +10,11 @@ import { updateHeadersAndSendResponseData } from './route_utils'
  * @param res <ServerResponse> response object to send to client
  */
 export function rootGetRequest (req: IncomingMessage, res: ServerResponse): void {
-  updateHeadersAndSendResponseData(200, {}, res)
+  updateHeadersAndSendResponseData(200, {
+    help: 'Welcome to the Github PR helper. Please see below for a list of active endpoints',
+    Maintainer: 'Tom Lucero',
+    activeEndpoints: ['/ : root help page', '/git : POST request with Body {url: URL_ADDRESS}']
+  }, res)
 }
 
 /**
